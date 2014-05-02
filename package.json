@@ -1,0 +1,23 @@
+{
+  "name": "cfn-stack-alarm-stream",
+  "version": "0.0.1",
+  "description": "",
+  "main": "index.js",
+  "bin": {
+    "cfn-stack-alarm": "./bin/alarm.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mapbox/cfn-stack-alarm-stream.git"
+  },
+  "author": "Mapbox",
+  "license": "BSD",
+  "dependencies": {
+    "optimist": "~0.6.0",
+    "underscore": "~1.5.2",
+    "aws-sdk": "~2.0.0-rc9",
+    "superenv": "0.0.1",
+    "step": "0.0.5",
+    "colors": "0.6.2"
+  }
+}
