@@ -1,6 +1,6 @@
 var _ = require('underscore');
 var AWS = require('aws-sdk');
-var Step = require('step');
+var queue = require('queue-async');
 
 var api = function(accessKeyId, secretAccessKey) {
     this.accessKeyId = accessKeyId;
@@ -26,13 +26,16 @@ api.prototype.getStackAlarms = function(region, stackName, callback) {
         var alarms = _(data.StackResources).filter(function(resource) {
             return resource.ResourceType === 'AWS::CloudWatch::Alarm';
         });
-        Step(function() {
-            var group = this.group();
-            _(alarms).each(function(alarm) {
-                var name = alarm.PhysicalResourceId;
-                cloudwatch.describeAlarms({AlarmNames: [name]}, group());
+        var q = queue();
+        _(alarms).each(function(alarm) {
+            q.defer(function(next) {
+                cloudwatch.describeAlarms({AlarmNames: [alarm.PhysicalResourceId]},
+                  function(err, data) {
+                      next(err, data);
+                  });
             });
-        }, function(err, results) {
+        });
+        q.awaitAll(function(err, results) {
             if (err) return callback(err);
             results = _(results).reduce(function(memo, result) {
                 var details = result.MetricAlarms.pop();
@@ -96,12 +99,15 @@ api.prototype.getAlarmState = function(region, alarm, callback) {
 
 api.prototype.getAllAlarmState = function(region, alarms, callback) {
     var that = this;
-    Step(function() {
-        var group = this.group();
-        _(alarms).each(function(alarm) {
-            that.getAlarmState(region, alarm, group());
+    var q = queue();
+    _(alarms).each(function(alarm) {
+        q.defer(function(next) {
+            that.getAlarmState(region, alarm, function(err, data) {
+                next(err, data);
+            });
         });
-    }, function(err, results) {
+    });
+    q.awaitAll(function(err, results) {
         if (err) return callback(err);
         callback(err, results);
     });
