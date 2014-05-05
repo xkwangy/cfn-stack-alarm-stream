@@ -25,7 +25,7 @@ if (argv.help) return optimist.showHelp();
 
 alarms.getStackAlarms(argv.region, argv.name, function(err, result) {
     if (err) throw err;
-    alarms.getAllAlarmState(argv.region, result, function(err, states) {
+    alarms.getAlarmStateAll(argv.region, result, function(err, states) {
         if (err) throw err;
         _(states).each(function(state) {
             if (state.state === 'OK' || state.state === 'INSUFFICIENT_DATA') {

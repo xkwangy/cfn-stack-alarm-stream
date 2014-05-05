@@ -97,7 +97,7 @@ api.prototype.getAlarmState = function(region, alarm, callback) {
     });
 };
 
-api.prototype.getAllAlarmState = function(region, alarms, callback) {
+api.prototype.getAlarmStateAll = function(region, alarms, callback) {
     var that = this;
     var q = queue();
     _(alarms).each(function(alarm) {
